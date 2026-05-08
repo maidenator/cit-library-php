@@ -1,0 +1,95 @@
+-- 1. DATABASE INITIALIZATION
+CREATE DATABASE IF NOT EXISTS citu_library;
+USE citu_library;
+
+-- 2. TABLE STRUCTURES
+CREATE TABLE BOOK (
+    BookID VARCHAR(10) PRIMARY KEY,
+    Title VARCHAR(255) NOT NULL,
+    Author VARCHAR(255) NOT NULL,
+    ISBN VARCHAR(20) NOT NULL,
+    PublishedYear INT,
+    AvailabilityStatus ENUM('Available', 'Checked Out') DEFAULT 'Available',
+    BorrowCount INT DEFAULT 0
+);
+
+CREATE TABLE USER (
+    UserID VARCHAR(20) PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Password VARCHAR(255) NOT NULL,
+    Role ENUM('Student', 'Faculty', 'Admin') DEFAULT 'Student',
+    AccountStatus ENUM('Active', 'Restricted') DEFAULT 'Active',
+    MaxLoanLimit INT DEFAULT 5
+);
+
+CREATE TABLE LOAN (
+    LoanID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID VARCHAR(20),
+    BookID VARCHAR(10),
+    BorrowDate DATE,
+    DueDate DATE,
+    ReturnDate DATE NULL,
+    LoanStatus ENUM('Active', 'Returned') DEFAULT 'Active',
+    FOREIGN KEY (UserID) REFERENCES USER(UserID),
+    FOREIGN KEY (BookID) REFERENCES BOOK(BookID)
+);
+
+CREATE TABLE RESERVATION (
+    ReservationID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID VARCHAR(20),
+    BookID VARCHAR(10),
+    RequestDate DATE,
+    QueueStatus ENUM('Pending', 'Fulfilled', 'Cancelled') DEFAULT 'Pending',
+    FOREIGN KEY (UserID) REFERENCES USER(UserID),
+    FOREIGN KEY (BookID) REFERENCES BOOK(BookID)
+);
+
+-- 3. POPULATE 40 REAL CS & ENGINEERING BOOKS
+INSERT INTO BOOK (BookID, Title, Author, ISBN, PublishedYear, AvailabilityStatus, BorrowCount) VALUES
+('CS-101', 'Artificial Intelligence: A Modern Approach', 'Stuart Russell', '978-0136042594', 2020, 'Available', 145),
+('CS-102', 'Introduction to Algorithms', 'Thomas H. Cormen', '978-0262033848', 2009, 'Available', 189),
+('CS-103', 'Clean Code', 'Robert C. Martin', '978-0132350884', 2008, 'Available', 210),
+('CS-104', 'Design Patterns: Elements of Reusable Object-Oriented Software', 'Erich Gamma', '978-0201633610', 1994, 'Available', 132),
+('CS-105', 'The Pragmatic Programmer', 'Andrew Hunt', '978-0135957059', 2019, 'Available', 167),
+('CS-106', 'Structure and Interpretation of Computer Programs', 'Harold Abelson', '978-0262510875', 1996, 'Available', 88),
+('CS-107', 'Code Complete', 'Steve McConnell', '978-0735619678', 2004, 'Available', 95),
+('CS-108', 'Refactoring: Improving the Design of Existing Code', 'Martin Fowler', '978-0134757599', 2018, 'Available', 112),
+('CS-109', 'The Mythical Man-Month', 'Frederick Brooks', '978-0201835953', 1975, 'Available', 76),
+('CS-110', 'Computer Networking: A Top-Down Approach', 'James Kurose', '978-0133594140', 2020, 'Available', 143),
+('CS-111', 'Database System Concepts', 'Abraham Silberschatz', '978-0073523323', 2019, 'Available', 121),
+('CS-112', 'Operating System Concepts', 'Abraham Silberschatz', '978-1119456339', 2018, 'Available', 118),
+('CS-113', 'Compilers: Principles, Techniques, and Tools', 'Alfred Aho', '978-0321486813', 2006, 'Available', 65),
+('CS-114', 'The C Programming Language', 'Brian Kernighan', '978-0131103627', 1988, 'Available', 250),
+('CS-115', 'Computer Architecture: A Quantitative Approach', 'John Hennessy', '978-0128119051', 2017, 'Available', 92),
+('CS-116', 'Modern Operating Systems', 'Andrew Tanenbaum', '978-0133591620', 2014, 'Available', 104),
+('CS-117', 'Cracking the Coding Interview', 'Gayle Laakmann McDowell', '978-0984782857', 2015, 'Available', 312),
+('CS-118', 'Soft Skills: The software developer''s life manual', 'John Sonmez', '978-1617292392', 2014, 'Available', 84),
+('CS-119', 'Deep Learning', 'Ian Goodfellow', '978-0262035613', 2016, 'Available', 156),
+('CS-120', 'Designing Data-Intensive Applications', 'Martin Kleppmann', '978-1449373320', 2017, 'Available', 203),
+('CS-121', 'Patterns of Enterprise Application Architecture', 'Martin Fowler', '978-0321127426', 2002, 'Available', 77),
+('CS-122', 'Domain-Driven Design', 'Eric Evans', '978-0321125217', 2003, 'Available', 91),
+('CS-123', 'Head First Design Patterns', 'Eric Freeman', '978-1492078005', 2020, 'Available', 188),
+('CS-124', 'JavaScript: The Good Parts', 'Douglas Crockford', '978-0596517748', 2008, 'Available', 125),
+('CS-125', 'Effective Java', 'Joshua Bloch', '978-0134685991', 2017, 'Available', 154),
+('CS-126', 'Python Crash Course', 'Eric Matthes', '978-1593279288', 2019, 'Available', 221),
+('CS-127', 'Automate the Boring Stuff with Python', 'Al Sweigart', '978-1593279929', 2019, 'Available', 198),
+('CS-128', 'The Phoenix Project', 'Gene Kim', '978-0988262591', 2013, 'Available', 142),
+('CS-129', 'Continuous Delivery', 'Jez Humble', '978-0321601919', 2010, 'Available', 68),
+('CS-130', 'Code: The Hidden Language of Computer Hardware', 'Charles Petzold', '978-0735611313', 2000, 'Available', 115),
+-- Mining & General Engineering Focus for CIT-U
+('EN-201', 'Engineering Mechanics: Statics', 'J.L. Meriam', '978-1118807354', 2014, 'Available', 140),
+('EN-202', 'Principles of Geotechnical Engineering', 'Braja M. Das', '978-1305970939', 2017, 'Available', 110),
+('EN-203', 'Introductory Mining Engineering', 'Howard L. Hartman', '978-0471348511', 2002, 'Available', 95),
+('EN-204', 'Rock Mechanics for Underground Mining', 'B.H.G. Brady', '978-1402020643', 2004, 'Available', 62),
+('EN-205', 'Materials Science and Engineering', 'William Callister', '978-1118324578', 2014, 'Available', 89),
+('EN-206', 'Circuit Analysis: Theory and Practice', 'Allan Robbins', '978-1133281009', 2012, 'Available', 105),
+('EN-207', 'Discrete Mathematics and Its Applications', 'Kenneth Rosen', '978-1259676512', 2018, 'Available', 178),
+('EN-208', 'Linear Algebra and Its Applications', 'Gilbert Strang', '978-0030105678', 2005, 'Available', 162),
+('EN-209', 'Probability and Statistics for Engineers', 'Richard Johnson', '978-0321989178', 2016, 'Available', 134),
+('EN-210', 'Introduction to the Theory of Computation', 'Michael Sipser', '978-1133187790', 2012, 'Available', 82);
+
+-- 4. SAMPLE USERS (Passwords are '1234' for testing)
+INSERT INTO USER (UserID, Name, Password, Role, AccountStatus, MaxLoanLimit) VALUES
+('2022-0001', 'Gabriel Elorde', '1234', 'Student', 'Active', 5),
+('2022-0002', 'Juan Dela Cruz', '1234', 'Student', 'Active', 5),
+('1000-FAC', 'Prof. Mining', '1234', 'Faculty', 'Active', 10);
