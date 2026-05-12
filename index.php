@@ -4,7 +4,6 @@
 session_start();
 require 'db.php';
 
-// 1. Security Check
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -14,32 +13,27 @@ $role = $_SESSION['role'];
 $name = $_SESSION['name'];
 $user_id = $_SESSION['user_id'];
 
-// Fetch General Dashboard Stats
 $stats_query = "SELECT 
     (SELECT COUNT(*) FROM BOOK) as total,
     (SELECT COUNT(*) FROM BOOK WHERE AvailabilityStatus = 'Available') as avail,
     (SELECT COUNT(*) FROM USER WHERE AccountStatus = 'Active') as active_users";
 $stats = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
 
-// Fetch top 4 most borrowed available books
 $high_demand_query = "SELECT * FROM BOOK 
                       WHERE AvailabilityStatus = 'Available' 
                       ORDER BY BorrowCount DESC 
                       LIMIT 4";
 $high_demand_result = mysqli_query($conn, $high_demand_query);
 
-// Fetch specific load count
 $load_query = "SELECT COUNT(*) as current_load FROM LOAN WHERE UserID = '$user_id' AND LoanStatus = 'Active'";
 $user_load = mysqli_fetch_assoc(mysqli_query($conn, $load_query))['current_load'];
 
-// Fetch actual book details for cards
 $my_books_query = "SELECT b.*, l.DueDate 
                    FROM BOOK b 
                    JOIN LOAN l ON b.BookID = l.BookID 
                    WHERE l.UserID = '$user_id' AND l.LoanStatus = 'Active'";
 $my_books_result = mysqli_query($conn, $my_books_query);
 
-// Fetch active reservations with a strict FIFO tie-breaker using ReservationID
 $res_query = "SELECT r.*, b.Title, 
              (SELECT COUNT(*) FROM RESERVATION r2 
               WHERE r2.BookID = r.BookID 
@@ -50,25 +44,17 @@ $res_query = "SELECT r.*, b.Title,
               WHERE r.UserID = '$user_id' AND r.QueueStatus = 'Pending'";
 $res_result = mysqli_query($conn, $res_query);
 
-// --- OVERDUE ENFORCEMENT ---
 $today = date('Y-m-d');
 
-// 1. Check if the user has ANY active loan that is past its DueDate
 $overdue_check = "SELECT COUNT(*) as overdue_count FROM LOAN 
                   WHERE UserID = '$user_id' 
                   AND LoanStatus = 'Active' 
                   AND DueDate < '$today'";
 $is_overdue = mysqli_fetch_assoc(mysqli_query($conn, $overdue_check))['overdue_count'] > 0;
 
-// 2. Automatically Restrict the account if they are late (Business Rule 10)
 if ($is_overdue) {
     mysqli_query($conn, "UPDATE USER SET AccountStatus = 'Restricted' WHERE UserID = '$user_id'");
-} else {
-    // Optional: Un-restrict if they have returned everything (or keep it manual for Faculty)
-    // mysqli_query($conn, "UPDATE USER SET AccountStatus = 'Active' WHERE UserID = '$user_id'");
 }
-
-// Fetch the latest account status for the UI
 $status_query = "SELECT AccountStatus FROM USER WHERE UserID = '$user_id'";
 $account_status = mysqli_fetch_assoc(mysqli_query($conn, $status_query))['AccountStatus'];
 ?>
@@ -98,7 +84,6 @@ $account_status = mysqli_fetch_assoc(mysqli_query($conn, $status_query))['Accoun
         .btn-gold { background: #f4b400; color: black; border: 2px solid #f4b400; margin-left: 10px; }
         .loan-info { font-weight: bold; font-size: 14px; margin-bottom: 10px; }
 
-        /* NEW STYLES FOR BORROWED BOOK LIST */
         .my-books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
         .mini-book-card { background: white; border: 1px solid #ddd; box-shadow: 3px 3px 0px #f4b400; display: flex; flex-direction: column; }
         .mini-cover { background: #1a1a1a; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 12px; min-height: 40px; display: flex; align-items: center; justify-content: center; }
@@ -139,9 +124,8 @@ $account_status = mysqli_fetch_assoc(mysqli_query($conn, $status_query))['Accoun
             background: #a00000;
         }
 
-        /* Overdue Alert Styles */
         .overdue-card {
-            border: 2px solid #e74c3c !important; /* Bright Red */
+            border: 2px solid #e74c3c !important;
             box-shadow: 5px 5px 0px #800000 !important;
         }
 

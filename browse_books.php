@@ -2,14 +2,11 @@
 session_start();
 require 'db.php';
 
-// Check if user is Guest or logged in
 $isGuest = !isset($_SESSION['user_id']);
 $userID = $isGuest ? '' : $_SESSION['user_id'];
 
-// Handle Search Query
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
-// 1. Identity-aware SQL with Search & Waitlist logic
 $sql = "SELECT b.*, 
         (SELECT LoanID FROM LOAN l WHERE l.BookID = b.BookID AND l.UserID = '$userID' AND l.LoanStatus = 'Active') AS UserHasThisBook,
         (SELECT ReservationID FROM RESERVATION r WHERE r.BookID = b.BookID AND r.UserID = '$userID' AND r.QueueStatus = 'Pending') AS UserInWaitlist
@@ -17,10 +14,8 @@ $sql = "SELECT b.*,
         WHERE (b.Title LIKE '%$search%' OR b.Author LIKE '%$search%' OR b.ISBN LIKE '%$search%')
         ORDER BY b.Title ASC";
 
-// 2. RUN THE QUERY:
 $result = mysqli_query($conn, $sql);
 
-// 3. SAFETY CHECK
 if (!$result) {
     die("Database Error: " . mysqli_error($conn));
 }
@@ -37,7 +32,6 @@ if (!$result) {
         .header h1 { margin: 0; font-size: 20px; letter-spacing: 1px; }
         .container { padding: 30px 40px; }
         
-        /* REDESIGNED SEARCH BAR - Dashboard Style */
         .search-container { margin-bottom: 35px; }
         .search-form { display: flex; box-shadow: 5px 5px 0px #f4b400; }
         .search-input { flex-grow: 1; padding: 15px 20px; border: 2px solid #800000; font-size: 15px; outline: none; background: white; }
@@ -135,7 +129,6 @@ if (!$result) {
 </div>
 
 <script>
-    // Check the URL for error or success messages
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
         
@@ -145,19 +138,17 @@ if (!$result) {
             let message = "An unknown error occurred.";
             
             if (errorType === 'restricted') {
-                message = "🚫 ACCESS DENIED\n\nYour account is restricted due to overdue books. Please return late resources to restore borrowing privileges.";
+                message = "ACCESS DENIED\n\nYour account is restricted due to overdue books. Please return late resources to restore borrowing privileges.";
             } else if (errorType === 'limit') {
-                message = "⚠️ LIMIT REACHED\n\nYou have reached your maximum borrowing limit. Return a book to borrow a new one.";
+                message = "LIMIT REACHED\n\nYou have reached your maximum borrowing limit. Return a book to borrow a new one.";
             } else if (errorType === 'unavailable') {
-                message = "❌ RESOURCE UNAVAILABLE\n\nThis book was just checked out by another user.";
+                message = "RESOURCE UNAVAILABLE\n\nThis book was just checked out by another user.";
             }
             
             alert(message);
-            // Clean the URL so the popup doesn't keep appearing on refresh
             window.history.replaceState({}, document.title, window.location.pathname);
         }
 
-        // Handle Success Messages
         if (urlParams.has('msg')) {
             alert("✅ SUCCESS\n\n" + urlParams.get('msg'));
             window.history.replaceState({}, document.title, window.location.pathname);

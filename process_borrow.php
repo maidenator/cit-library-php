@@ -57,19 +57,16 @@ $dueDate = date('Y-m-d', strtotime("+$daysAllowed days"));
 mysqli_begin_transaction($conn);
 
 try {
-    // A. Record the Loan
     $insertLoan = "INSERT INTO LOAN (UserID, BookID, BorrowDate, DueDate, LoanStatus) VALUES (?, ?, ?, ?, 'Active')";
     $lStmt = mysqli_prepare($conn, $insertLoan);
     mysqli_stmt_bind_param($lStmt, "ssss", $userID, $bookID, $borrowDate, $dueDate);
     mysqli_stmt_execute($lStmt);
 
-    // B. Mark Book as Checked Out
     $updateBook = "UPDATE BOOK SET AvailabilityStatus = 'Checked Out' WHERE BookID = ?";
     $upStmt = mysqli_prepare($conn, $updateBook);
     mysqli_stmt_bind_param($upStmt, "s", $bookID);
     mysqli_stmt_execute($upStmt);
 
-    // C. THE FIX: Increment the BorrowCount
     $updateCount = "UPDATE BOOK SET BorrowCount = BorrowCount + 1 WHERE BookID = ?";
     $countStmt = mysqli_prepare($conn, $updateCount);
     mysqli_stmt_bind_param($countStmt, "s", $bookID);

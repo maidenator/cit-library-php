@@ -7,9 +7,8 @@ if (isset($_POST['submit'])) {
     $lname = $_POST['lastName'];
     $email = $_POST['email'];
     $role = $_POST['userRole'];
-    $pass = password_hash($_POST['password'], PASSWORD_DEFAULT); // Secure hashing for BR5 
+    $pass = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    // Apply Business Rule 3: Loan Limits 
     $limit = 0;
     if ($role == 'Student') $limit = 5;
     elseif ($role == 'Faculty') $limit = 10;

@@ -2,7 +2,6 @@
 session_start();
 require 'db.php';
 
-// Security Check: Only Faculty and Admins can edit the catalog
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] !== 'Faculty' && $_SESSION['role'] !== 'Admin')) {
     header("Location: index.php");
     exit();
@@ -11,7 +10,6 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] !== 'Faculty' && $_SESSIO
 $id = $_GET['id'];
 $msg = "";
 
-// 1. Fetch the current book details from the database
 $sql = "SELECT * FROM BOOK WHERE BookID = ?";
 $stmt = mysqli_prepare($conn, $sql);
 mysqli_stmt_bind_param($stmt, "s", $id);
@@ -23,7 +21,6 @@ if (!$book) {
     die("Error: Resource not found in the catalog.");
 }
 
-// 2. Handle the Update Request
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $title = $_POST['title'];
     $author = $_POST['author'];
@@ -55,7 +52,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .header h1 { margin: 0; font-size: 20px; letter-spacing: 1px; }
         .container { padding: 50px 40px; display: flex; justify-content: center; }
         
-        /* Thematic Card similar to add_book.php */
         .form-card { background: white; border: 2px solid #800000; padding: 40px; width: 100%; max-width: 500px; box-shadow: 8px 8px 0px #f4b400; }
         .form-card h2 { color: #800000; margin-top: 0; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; border-left: 5px solid #800000; padding-left: 15px; }
         

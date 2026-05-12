@@ -2,7 +2,6 @@
 session_start();
 require 'db.php';
 
-// Security: Only Faculty and Admins can add books
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] !== 'Faculty' && $_SESSION['role'] !== 'Admin')) {
     header("Location: index.php");
     exit();
@@ -14,7 +13,7 @@ if (isset($_POST['add_book'])) {
     $author = $_POST['author'];
     $isbn = $_POST['isbn'];
     $year = $_POST['publishedYear'];
-    $status = "Available"; // BR2: Default status for new records [cite: 14]
+    $status = "Available";
 
     $sql = "INSERT INTO BOOK (BookID, Title, Author, ISBN, AvailabilityStatus, PublishedYear) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($conn, $sql);

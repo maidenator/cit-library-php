@@ -2,16 +2,13 @@
 session_start();
 require 'db.php';
 
-// Security: Only Faculty and Admins
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] !== 'Faculty' && $_SESSION['role'] !== 'Admin')) {
     header("Location: index.php");
     exit();
 }
 
-// Handle Search Query
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
-// SQL: Filter by ID, Title, or Author
 $sql = "SELECT * FROM BOOK 
         WHERE (Title LIKE '%$search%' 
         OR Author LIKE '%$search%' 

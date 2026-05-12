@@ -6,10 +6,9 @@ if (isset($_POST['register'])) {
     $fname = $_POST['firstName'];
     $lname = $_POST['lastName'];
     $email = $_POST['email'];
-    $role = $_POST['role']; // Student or Faculty [cite: 7, 8]
-    $pass = password_hash($_POST['password'], PASSWORD_DEFAULT); // Secure hashing [cite: 17]
+    $role = $_POST['role'];
+    $pass = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    // BR3: Automatic Loan Limits [cite: 15, 37]
     $limit = ($role == 'Faculty') ? 10 : 5;
 
     $sql = "INSERT INTO USER (UserID, FirstName, LastName, Email, Password, UserRole, MaxLoanLimit) VALUES (?, ?, ?, ?, ?, ?, ?)";
